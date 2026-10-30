@@ -20,6 +20,6 @@ dependencies:
   - tqdm
   - pip
   - pip:
-    - git+https://github.com/wishabc/nmf-tools.git
+    - git+https://github.com/vierstralab/nmf-tools.git
     - genome_tools>=2.0
 prefix: /home/sabramov/miniconda3/envs/nmf

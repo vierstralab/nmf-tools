@@ -17,7 +17,7 @@
 
 __title__ = 'nmf-tools'
 __description__ = ''
-__url__ = 'https://github.com/wishabc/nmt-tools.git'
+__url__ = 'https://github.com/vierstralab/nmf-tools.git'
 __version__ = '1.0.0'
 __author__ = 'Alexandr Boytsov'
 __author_email__ = 'sboytsov@altius.org'

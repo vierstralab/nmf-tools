@@ -45,7 +45,7 @@ conda activate nmf
 
 ### Install nmf-tools directly
 ```bash
-git clone https://github.com/wishabc/nmf-tools.git
+git clone https://github.com/vierstralab/nmf-tools.git
 cd nmf-tools
 pip install -e .
 ```

@@ -1,0 +1,41 @@
+[project]
+name = "nmf_tools"
+dynamic = ["version"]
+description = "NMF decomposition and plotting utilities."
+authors = [
+    { name = "Alexandr Boytsov", email = "sboytsov@altius.org" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+
+dependencies = [
+    "pandas",
+    "numpy",
+    "matplotlib>=3.3.3",
+    "scikit-learn",
+    "seaborn",
+    "statsmodels",
+    "makefun"
+]
+
+[project.urls]
+Homepage = "https://github.com/vierstralab/nmf-tools"
+Repository = "https://github.com/vierstralab/nmf-tools"
+Issues = "https://github.com/vierstralab/nmf-tools/issues"
+
+[tool.setuptools.packages.find]
+include = ["nmf_tools*"]
+
+[tool.setuptools.package-data]
+nmf_tools = ["vierstragroup_matplotlibrc"]
+
+[tool.setuptools.dynamic]
+version = { attr = "nmf_tools.__version__" }
+
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
