@@ -13,7 +13,8 @@ process fit_nmf {
 		val prefix
 
 	output:
-        tuple val(prefix), path("${prefix}.W.npy"), path("${prefix}.H.npy"), path("${prefix}.non_zero_peaks_mask.txt")
+        tuple val(prefix), path("${prefix}.W.npy"), path("${prefix}.H.npy"), path("${prefix}.non_zero_peaks_mask.txt"), emit: results
+        path("${prefix}.samples_mask.txt"), emit: samples_mask
 
 	script:
 	"""
@@ -50,12 +51,12 @@ process visualize_nmf {
 
 // nextflow run ~/packages/nmf_tools/nmf/nextflow/nmf_from_anndata.nf -profile Altius -resume
 workflow {
-    Channel.fromPath(params.nmf_params)
+    prefixes = Channel.fromPath(params.nmf_params)
         | splitCsv(header: false)
         | map(it -> it[0])
         | distinct { it }
-        | fit_nmf
-        | (visualize_nmf & findTop)
+    fit_nmf(prefixes)
+    fit_nmf.out.results | (visualize_nmf & findTop)
 }
 
 

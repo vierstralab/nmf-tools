@@ -14,6 +14,10 @@ from sklearn._config import config_context
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.utils.extmath import safe_sparse_dot, squared_norm
 from sklearn.utils.validation import check_is_fitted, check_non_negative
+try:
+    from sklearn.utils.validation import validate_data  # sklearn >= 1.6
+except ImportError:
+    validate_data = None
 
 
 EPSILON = np.finfo(np.float32).eps
@@ -25,9 +29,11 @@ class WeightedNMF(NMF):
 
         self._validate_params()
 
-        X = self._validate_data(
-            X, accept_sparse=("csr", "csc"), dtype=[np.float64, np.float32]
-        )
+        validate_kwargs = dict(accept_sparse=("csr", "csc"), dtype=[np.float64, np.float32])
+        if validate_data is not None:
+            X = validate_data(self, X, **validate_kwargs)
+        else:
+            X = self._validate_data(X, **validate_kwargs)
         if W_weights is not None and self.beta_loss != 'frobenius':
             raise NotImplementedError
         with config_context(assume_finite=True):

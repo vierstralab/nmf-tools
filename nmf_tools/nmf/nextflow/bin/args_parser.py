@@ -1,6 +1,5 @@
 import numpy as np
 import argparse
-import argparse
 import yaml
 
 import dataclasses
@@ -26,8 +25,8 @@ class NMFInputData:
     project_masked_samples: bool
 
 DEFAULTS = {
-    "samples_mask_column": None,
-    "dhs_mask_column": None,
+    "sample_mask_eval": None,
+    "dhs_mask_eval": None,
     "samples_weights": None,
     "peaks_weights": None,
     "mode": "weighted",
@@ -45,21 +44,6 @@ def setup_parser() -> argparse.ArgumentParser:
     parser.add_argument("config", help="YAML config file")
     return parser
 
-
-def parse_nmf_args(prefix: str, config_file: str) -> NMFInputData:
-    """Load NMF input data from YAML config (AnnData only)."""
-    with open(config_file) as f:
-        cfg = yaml.safe_load(f)
-
-    if prefix not in cfg:
-        raise ValueError(f"Prefix {prefix} not found in {config_file}")
-    job_cfg = {**DEFAULTS, **cfg[prefix]}  # merge with defaults
-
-    if "anndata" not in job_cfg:
-        raise ValueError(f"Config for {prefix} must contain 'anndata'")
-
-    return _parse_from_anndata(job_cfg)
-    
 
 def parse_nmf_args(prefix: str, config_file: str) -> NMFInputData:
     """Load NMF input data from YAML config."""

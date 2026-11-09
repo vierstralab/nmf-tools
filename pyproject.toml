@@ -16,9 +16,6 @@ dependencies = [
     "scipy",
     "scikit-learn",
     "scikit-image",
-    "seaborn",
-    "statsmodels",
-    "makefun",
     "tqdm"
 ]
 

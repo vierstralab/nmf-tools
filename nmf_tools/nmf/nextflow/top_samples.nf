@@ -10,7 +10,7 @@ process find_top_samples {
     label "highmem"
 
     input:
-        tuple val(prefix), path(W), path(H), path(non_zero_peaks_mask)
+        tuple val(prefix), path(W)
 
     output:
         tuple val(prefix), path("*.*.component_${prefix}.bw"), path(name)
@@ -22,7 +22,6 @@ process find_top_samples {
         ${prefix} \
         ${params.nmf_config} \
         ${W} \
-        ${non_zero_peaks_mask} \
         --top ${params.top_count}
     """
 }
@@ -55,6 +54,7 @@ workflow findTop {
         data // 
     main:
         top_samples = data
+            | map(it -> tuple(it[0], it[1])) // prefix, W
             | find_top_samples
             | map(it -> tuple(it[0], it[1]))
             | transpose() // prefix, bw_file

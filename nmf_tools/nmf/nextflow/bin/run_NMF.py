@@ -1,6 +1,7 @@
 import numpy as np
 
 from nmf_tools.nmf import NMFModel
+from nmf_tools.utils.sample_weights import normalize_weights
 
 from args_parser import NMFInputData, setup_parser, parse_nmf_args
 
@@ -22,10 +23,13 @@ def main(nmf_input_data: NMFInputData):
     peaks_mask = nmf_input_data.peaks_mask & (X.sum(axis=0) > 0).A1
     X = X[:, peaks_mask]
 
+    # weights are normalized over all samples/peaks; renormalize the masked ones
+    _, W_weights = normalize_weights(nmf_input_data.samples_weights[nmf_input_data.samples_mask])
+    _, H_weights = normalize_weights(nmf_input_data.peaks_weights[peaks_mask])
     W, H = nmf_model.fit_transform(
         X,
-        W_weights=nmf_input_data.samples_weights[nmf_input_data.samples_mask],
-        H_weights=nmf_input_data.peaks_weights[peaks_mask]
+        W_weights=W_weights,
+        H_weights=H_weights
     )
     
     # Optional, projects masked samples
@@ -34,7 +38,7 @@ def main(nmf_input_data: NMFInputData):
             nmf_input_data.matrix[:, peaks_mask],
             H,
             W_weights=nmf_input_data.samples_weights,
-            H_weights=nmf_input_data.peaks_weights[peaks_mask]
+            H_weights=H_weights
         )
 
     return W, H, peaks_mask

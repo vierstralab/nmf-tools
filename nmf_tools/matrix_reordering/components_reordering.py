@@ -67,14 +67,15 @@ def order_components_by_template(W, W_template):
     Parameters
     ----------
     W : np.ndarray (n_components, n_records)
-        Matrix to match.
-    W_template : np.ndarray (n_components_ref, n_records)
         Matrix to reorder.
+    W_template : np.ndarray (n_components_ref, n_records)
+        Matrix to match.
 
     Returns
     -------
-    col_ind : np.ndarray (n_components,)
-        New order of components.
+    MatrixReordering
+        ``row_order``: order of the components of W, matched one-to-one to the
+        components of W_template by cosine similarity.
     '''
     cosine_similarity = 1 - cdist(W_template, W, 'cosine')
     _, order = linear_sum_assignment(-cosine_similarity)
@@ -83,7 +84,7 @@ def order_components_by_template(W, W_template):
 
 def order_components_by_mean_loading(W):
     """
-    Sorts elements in each column according to the mean value.
+    Order components by their mean loading across records, highest first.
 
     Parameters
     ----------
@@ -92,8 +93,8 @@ def order_components_by_mean_loading(W):
 
     Returns
     -------
-    component_orders : np.ndarray (n_components, n_records)
-        New order of components for each record.
+    MatrixReordering
+        ``row_order``: order of the components, shape (n_components,).
     """
     component_orders = np.argsort(W.mean(axis=1))[::-1].T
     return MatrixReordering(row_order=component_orders)

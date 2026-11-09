@@ -39,7 +39,7 @@ def plot_stacked_barplot(bottoms, tops, colors, xvals=None, ax=None, orient='hor
 
 @in_vierstra_style
 def component_barplot(matrix, component_data, box_lw=0.15, ax=None, plotting_kwargs=None, **order_matrix_kwargs):
-    bottoms, tops, components_order, records_order = order_matrix(
+    tops, bottoms, components_order, records_order = order_matrix(
         matrix,
         **order_matrix_kwargs
     )
@@ -97,7 +97,7 @@ def component_barplot_at_scale(
         )
         ax.set_xticks(np.arange(num_elements) + 0.5)
         ax.set_xticklabels(
-            records_labels[order[sl]],
+            np.asarray(records_labels)[order[sl]],
             rotation=90
         )
         ax.set_xlim(0, bars_per_panel)
@@ -203,7 +203,7 @@ def plot_component_top_barplot(data, labels, color, ax=None, top_count=15):
 
     sorted_indices = np.argsort(data)[-top_count_actual:]
     sorted_data = data[sorted_indices]
-    sorted_names = labels[sorted_indices]
+    sorted_names = np.asarray(labels)[sorted_indices]
 
     ax.barh(np.arange(top_count_actual), sorted_data, color=color)
     ax.set_yticks(np.arange(top_count_actual))

@@ -11,15 +11,15 @@ dependencies:
   - dask
   - zarr
   - scikit-learn
-  - umap-learn
   - seaborn
-  - tmux
-  - python=3.9
+  - python=3.10
   - statsmodels
   - scipy
   - tqdm
+  - pyyaml
+  - wiggletools
+  - ucsc-bedgraphtobigwig
   - pip
   - pip:
     - git+https://github.com/vierstralab/nmf-tools.git
-    - genome_tools>=2.0
-prefix: /home/sabramov/miniconda3/envs/nmf
+    - "genome-tools[anndata] @ git+https://github.com/vierstralab/genome-tools.git@v3.0.0"

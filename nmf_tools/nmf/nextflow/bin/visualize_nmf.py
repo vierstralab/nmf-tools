@@ -53,7 +53,7 @@ def main(
 
     print('All DHSs')
     rng = np.random.default_rng(42)
-    downsampled_indices = rng.choice(H.shape[1], size=10_000, replace=False)
+    downsampled_indices = rng.choice(H.shape[1], size=min(10_000, H.shape[1]), replace=False)
     fig, ax = plt.subplots(figsize=(20, 2))
     ax, _, _ = component_barplot(
         H[:, downsampled_indices],
@@ -220,7 +220,7 @@ if __name__ == '__main__':
     nmf_data = parse_nmf_args(args.prefix, args.config)
     
     if 'sample_label' not in nmf_data.samples_metadata.columns:
-        if 'SPOT3_score' not in nmf_data.samples_metadata.columns and 'core_ontology_term' not in nmf_data.samples_metadata.columns:
+        if 'SPOT3_score' not in nmf_data.samples_metadata.columns or 'core_ontology_term' not in nmf_data.samples_metadata.columns:
             raise ValueError('sample_label column is missing in samples metadata')
         print('Assuming sample_label is core_ontology_term + SPOT3_score')
         nmf_data.samples_metadata.loc[:, 'sample_label'] = (

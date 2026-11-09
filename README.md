@@ -10,6 +10,8 @@ The core algorithm is:
 - **Component matching/reordering** — aligns components across independent NMF runs (e.g. a new run vs. a reference) so component indices, signs, and scales are comparable.
 - **Labeling & visualization** — assigns each peak a label listing the smallest set of components explaining a target fraction of its signal, and produces stacked-barplot/heatmap visualizations of sample and component composition.
 
+Coding agents: read [AGENTS.md](AGENTS.md) first.
+
 ## Table of contents
 
 - [Repository layout](#repository-layout)
@@ -27,7 +29,7 @@ The core algorithm is:
 - [`nmf_tools/nmf/nextflow/`](nmf_tools/nmf/nextflow) — the Nextflow pipeline (`nmf_from_anndata.nf`, `top_samples.nf`) and its executable scripts ([`bin/`](nmf_tools/nmf/nextflow/bin)): `run_NMF.py`, `visualize_nmf.py`, `find_top_samples.py`, `args_parser.py`.
 - [`nmf_tools/matrix_reordering/`](nmf_tools/matrix_reordering) — `order_matrix()` / `MatrixReordering`: reorders and matches components and records (e.g. for comparing runs or aligning to a reference decomposition).
 - [`nmf_tools/component_labels/`](nmf_tools/component_labels) — `compute_labels()`: assigns each peak a component-membership label from `H`.
-- [`nmf_tools/plotting/`](nmf_tools/plotting) — stacked-barplot and heatmap visualizations of `W`/`H`.
+- [`nmf_tools/plotting/`](nmf_tools/plotting) — stacked-barplot and heatmap visualizations of `W`/`H`, and helpers for rows/grids of panels ([`layout/`](nmf_tools/plotting/layout/__init__.py)). These functions take matrices as components x records: pass `W.T` for samples and `H` for peaks.
 - [`nmf_tools/utils/`](nmf_tools/utils) — component color/naming metadata ([`component_data.py`](nmf_tools/utils/component_data.py)) and sample-weight helpers ([`sample_weights.py`](nmf_tools/utils/sample_weights.py)).
 - [`nmf_tools/information_content.py`](nmf_tools/information_content.py) — information-content calculations for DHS annotation.
 
@@ -67,7 +69,7 @@ W_new = model.project_samples(X_new, H, W_weights=new_sample_weights, H_weights=
 H_new = model.project_peaks(X, W, H_weights=new_peak_weights, W_weights=sample_weights)  # W fixed
 ```
 
-`extra_params` overrides any underlying sklearn `NMF` parameter (`max_iter`, `tol`, `alpha_W`, `l1_ratio`, ...). Weights are normalized internally to sum to the number of samples/peaks, so only their relative scale matters.
+`extra_params` overrides any underlying sklearn `NMF` parameter (`max_iter`, `tol`, `alpha_W`, `l1_ratio`, ...). Normalize weights to sum to the number of samples/peaks (`read_weights()` does this; for weights built in Python use `_, w = nmf_tools.utils.sample_weights.normalize_weights(w)`; it returns `(cap, weights)`). Give weights for every sample/peak of the AnnData; the pipeline renormalizes them after masking.
 
 ## Nextflow pipeline
 
@@ -102,6 +104,8 @@ nextflow run nmf_tools/nmf/nextflow/nmf_from_anndata.nf \
   --top_count 10 \
   --chrom_sizes GRCh38_no_alts.chrom_sizes
 ```
+Besides the `binary` layer, the scripts read `obs['normalized_density_bw']` (per-sample density bigWig, for the top-sample tracks) and `obs['sample_label']` (bar labels; built from `core_ontology_term` and `SPOT3_score` if missing). The top-sample tracks need `wiggletools` and `bedGraphToBigWig`.
+
 `prefixes.txt` is a one-column CSV listing the `prefix` keys from `config.yaml` to run. To (re-)generate only the visualizations from existing `W`/`H` output, use the `visualize` entry point instead:
 ```bash
 nextflow run nmf_tools/nmf/nextflow/nmf_from_anndata.nf -entry visualize -profile Altius --nmf_config config.yaml --nmf_params prefixes.txt
@@ -113,7 +117,7 @@ Per `prefix`, under `{outdir}/nmf/{prefix}/`:
 - `{prefix}.W.npy`, `{prefix}.H.npy` — the fit (`W`: samples x components, `H`: **peaks** x components — transposed relative to the `X = W @ H` convention used internally).
 - `{prefix}.non_zero_peaks_mask.txt`, `{prefix}.samples_mask.txt` — which peaks/samples were used in the fit.
 - `*.pdf` — composition barplots and heatmaps (e.g. `Barplot_all_DHSs.pdf`, `Hierarchical_barplot_all_samples.pdf`, `Top20_all_samples_barplot.pdf`, plus `Distance_to_tss.pdf` if `dist_tss` is in the peak metadata).
-- `{prefix}.top_samples.tsv` and `top_samples/{prefix}.{component}.top_samples.bw` — top-N samples per component (by `W` loading) and their averaged density track.
+- `{prefix}.top_samples.tsv` and `top_samples/{prefix}.{component}.top_samples.bw` — top-N samples per component (by `W` loading; each sample is counted only for its highest-loading component) and their averaged density track.
 - `{prefix}.component_tracks_meta.tsv` — maps each component to its aggregated BigWig path.
 
 ## Authors
